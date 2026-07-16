@@ -11,21 +11,17 @@ public class Track {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private String gpName;
     @NotBlank
     @Column(nullable = false, unique = true)
-    private String name;
+    private String circuitName;
     @NotBlank
     private String country;
     @NotBlank
     private String city;
-    @NotNull
     private Double lengthKm;
-    @NotNull
-    @Min(value = 1)
     private Integer numberOfTurns;
     private Integer raceLaps;
-    private Double topSpeedKmh;
     private String lapRecordTime;
     private String lapRecordHolder;
     private Integer lapRecordYear;
@@ -33,25 +29,25 @@ public class Track {
 
     public Track(){}
     public Track(
-            String name,
+            String gpName,
+            String circuitName,
             String country,
             String city,
             Double lengthKm,
             Integer numberOfTurns,
             Integer raceLaps,
-            Double topSpeedKmh,
             String lapRecordTime,
             String lapRecordHolder,
             Integer lapRecordYear,
             Integer firstHeldYear
     ){
-        this.name = name;
+        this.gpName = gpName;
+        this.circuitName = circuitName;
         this.country = country;
         this.city = city;
         this.lengthKm = lengthKm;
         this.numberOfTurns = numberOfTurns;
         this.raceLaps = raceLaps;
-        this.topSpeedKmh = topSpeedKmh;
         this.lapRecordTime = lapRecordTime;
         this.lapRecordHolder = lapRecordHolder;
         this.lapRecordYear = lapRecordYear;
@@ -62,12 +58,20 @@ public class Track {
         return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setGpName(String gpName) {
+        this.gpName = gpName;
     }
 
-    public String getName() {
-        return name;
+    public String getGpName() {
+        return gpName;
+    }
+
+    public void setCircuitName(String circuitName) {
+        this.circuitName = circuitName;
+    }
+
+    public String getCircuitName() {
+        return circuitName;
     }
 
     public void setCountry(String country) {
@@ -108,14 +112,6 @@ public class Track {
 
     public Integer getRaceLaps() {
         return raceLaps;
-    }
-
-    public void setTopSpeedKmh(Double topSpeedKmh) {
-        this.topSpeedKmh = topSpeedKmh;
-    }
-
-    public Double getTopSpeedKmh() {
-        return topSpeedKmh;
     }
 
     public void setLapRecordTime(String lapRecordTime) {
