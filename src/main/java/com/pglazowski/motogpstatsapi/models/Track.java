@@ -1,9 +1,9 @@
 package com.pglazowski.motogpstatsapi.models;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "tracks")
 public class Track {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
