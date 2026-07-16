@@ -1,6 +1,9 @@
 package com.pglazowski.motogpstatsapi.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "tracks")
@@ -9,10 +12,17 @@ public class Track {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
+    @Column(nullable = false, unique = true)
     private String name;
+    @NotBlank
     private String country;
+    @NotBlank
     private String city;
+    @NotNull
     private Double lengthKm;
+    @NotNull
+    @Min(value = 1)
     private Integer numberOfTurns;
     private Integer raceLaps;
     private Double topSpeedKmh;
