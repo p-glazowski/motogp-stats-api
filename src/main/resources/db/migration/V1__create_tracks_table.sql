@@ -1,7 +1,7 @@
 CREATE TABLE tracks (
     id                BIGSERIAL PRIMARY KEY,
     gp_name           VARCHAR(255),
-    circuit_name      VARCHAR(255) NOT NULL,
+    circuit_name      VARCHAR(255) UNIQUE NOT NULL,
     country           VARCHAR(100) NOT NULL,
     city              VARCHAR(100),
     length_km         DOUBLE PRECISION,
