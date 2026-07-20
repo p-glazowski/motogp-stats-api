@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: motogp-postgres
+
+    environment:
+      POSTGRES_DB: motogp_api_db
+      POSTGRES_USER: changeinprod
+      POSTGRES_PASSWORD: changeinprod
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
