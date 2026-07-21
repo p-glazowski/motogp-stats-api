@@ -4,8 +4,10 @@ import com.pglazowski.motogpstatsapi.dto.TrackRequest;
 import com.pglazowski.motogpstatsapi.dto.TrackResponse;
 import com.pglazowski.motogpstatsapi.services.TrackService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -29,14 +31,31 @@ public class TrackController {
     }
 
     @Operation(
-            summary = "Get all MotoGP tracks",
-            description = "Returns every circuit stored in the database"
+            summary = "Get tracks with filtering, pagination and sorting",
+            description = """
+                Returns tracks with optional filtering by country and city.
+                
+                Supports pagination and sorting.
+                
+                Examples:
+                - /tracks?country=Italy
+                - /tracks?city=Jerez
+                - /tracks?page=0&size=5
+                - /tracks?sort=lengthKm,desc
+                - /tracks?country=Spain&page=0&size=5&sort=lengthKm,desc
+                """
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Tracks retrieved successfully"
     )
     @GetMapping
     public Page<TrackResponse> getTracks(
             @RequestParam(required = false) String country,
             @RequestParam(required = false) String city,
-            @PageableDefault(size = 10, sort = "id") Pageable pageable
+            @ParameterObject
+            @PageableDefault(size = 10, sort = "id")
+            Pageable pageable
     ) {
         return trackService.getAllTracks(country, city, pageable);
     }
