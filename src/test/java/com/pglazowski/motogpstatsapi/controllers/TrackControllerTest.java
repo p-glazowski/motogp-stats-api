@@ -72,7 +72,7 @@ public class TrackControllerTest {
                 .andExpect(jsonPath("$.length()").value(0));
     }*/
 
-    @Test
+/*    @Test
     void getAllTracks_returnPagedTracks() throws Exception {
         // given
         TrackResponse track1 = new TrackResponse(
@@ -111,6 +111,144 @@ public class TrackControllerTest {
                 .andExpect(jsonPath("$.number").value(0));
 
         verify(trackService).getAllTracks(any(Pageable.class));
+    }*/
+
+    @Test
+    void getTracks_returnsAllTracks_whenNoFiltersProvided() throws Exception {
+
+        TrackResponse response = new TrackResponse(
+                1L,
+                "Spanish GP",
+                "Jerez",
+                "Spain",
+                "Jerez",
+                4.423,
+                13,
+                25,
+                null,
+                null,
+                null,
+                1987
+        );
+
+        Page<TrackResponse> page =
+                new PageImpl<>(List.of(response));
+
+        when(trackService.getAllTracks(
+                eq(null),
+                eq(null),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+
+        mockMvc.perform(get("/tracks"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].circuitName").value("Jerez"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+
+
+        verify(trackService)
+                .getAllTracks(eq(null), eq(null), any(Pageable.class));
+    }
+
+    @Test
+    void getTracks_filtersByCountry() throws Exception {
+
+        Page<TrackResponse> page =
+                new PageImpl<>(List.of());
+
+        when(trackService.getAllTracks(
+                eq("Italy"),
+                eq(null),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+
+        mockMvc.perform(get("/tracks")
+                        .param("country", "Italy"))
+                .andExpect(status().isOk());
+
+
+        verify(trackService)
+                .getAllTracks(eq("Italy"), eq(null), any(Pageable.class));
+    }
+
+    @Test
+    void getTracks_filtersByCity() throws Exception {
+
+        Page<TrackResponse> page =
+                new PageImpl<>(List.of());
+
+        when(trackService.getAllTracks(
+                eq(null),
+                eq("Jerez"),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+
+        mockMvc.perform(get("/tracks")
+                        .param("city", "Jerez"))
+                .andExpect(status().isOk());
+
+
+        verify(trackService)
+                .getAllTracks(eq(null), eq("Jerez"), any(Pageable.class));
+    }
+
+    @Test
+    void getTracks_filtersByCountryAndCity() throws Exception {
+
+        Page<TrackResponse> page =
+                new PageImpl<>(List.of());
+
+        when(trackService.getAllTracks(
+                eq("Italy"),
+                eq("Scarperia"),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+
+        mockMvc.perform(get("/tracks")
+                        .param("country", "Italy")
+                        .param("city", "Scarperia"))
+                .andExpect(status().isOk());
+
+
+        verify(trackService)
+                .getAllTracks(
+                        eq("Italy"),
+                        eq("Scarperia"),
+                        any(Pageable.class)
+                );
+    }
+
+    @Test
+    void getTracks_acceptsPaginationAndSorting() throws Exception {
+
+        Page<TrackResponse> page =
+                new PageImpl<>(List.of());
+
+        when(trackService.getAllTracks(
+                eq(null),
+                eq(null),
+                any(Pageable.class)
+        )).thenReturn(page);
+
+
+        mockMvc.perform(get("/tracks")
+                        .param("page", "1")
+                        .param("size", "5")
+                        .param("sort", "lengthKm,desc"))
+                .andExpect(status().isOk());
+
+
+        verify(trackService)
+                .getAllTracks(
+                        eq(null),
+                        eq(null),
+                        any(Pageable.class)
+                );
     }
 
     @Test

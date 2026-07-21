@@ -78,7 +78,7 @@ public class TrackServiceTest {
         verify(trackRepository).findAll();
     }*/
 
-    @Test
+ /*   @Test
     void getAllTracks_returnsPagedTrackResponses() {
         // given
         Pageable pageable = PageRequest.of(0, 2);
@@ -128,6 +128,140 @@ public class TrackServiceTest {
         assertThat(result.getContent().get(1).gpName()).isEqualTo("Grand Prix of Italy");
 
         verify(trackRepository).findAll(pageable);
+    }*/
+
+    @Test
+    void getAllTracks_returnsAllTracks_whenNoFiltersProvided() {
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Track track = new Track(
+                "Spanish GP",
+                "Jerez",
+                "Spain",
+                "Jerez",
+                4.423,
+                13,
+                25,
+                null,
+                null,
+                null,
+                1987
+        );
+
+        Page<Track> page = new PageImpl<>(List.of(track));
+
+        when(trackRepository.findAll(pageable)).thenReturn(page);
+
+        Page<TrackResponse> result =
+                trackService.getAllTracks(null, null, pageable);
+
+        assertEquals(1, result.getTotalElements());
+        assertThat(result.getContent().get(0).circuitName()).isEqualTo("Jerez");
+
+        verify(trackRepository).findAll(pageable);
+    }
+
+    @Test
+    void getAllTracks_filtersByCountry() {
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Track track = new Track(
+                "Italian GP",
+                "Mugello",
+                "Italy",
+                "Scarperia",
+                5.245,
+                15,
+                23,
+                null,
+                null,
+                null,
+                1974
+        );
+
+        Page<Track> page = new PageImpl<>(List.of(track));
+
+        when(trackRepository.findByCountryIgnoreCase("Italy", pageable))
+                .thenReturn(page);
+
+        Page<TrackResponse> result =
+                trackService.getAllTracks("Italy", null, pageable);
+
+        assertEquals(1, result.getTotalElements());
+        assertThat(result.getContent().get(0).country()).isEqualTo("Italy");
+
+        verify(trackRepository).findByCountryIgnoreCase("Italy", pageable);
+    }
+
+    @Test
+    void getAllTracks_filtersByCity() {
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Track track = new Track(
+                "Spanish GP",
+                "Jerez",
+                "Spain",
+                "Jerez",
+                4.423,
+                13,
+                25,
+                null,
+                null,
+                null,
+                1987
+        );
+
+        Page<Track> page = new PageImpl<>(List.of(track));
+
+        when(trackRepository.findByCityIgnoreCase("Jerez", pageable))
+                .thenReturn(page);
+
+        Page<TrackResponse> result =
+                trackService.getAllTracks(null, "Jerez", pageable);
+
+        assertEquals(1, result.getTotalElements());
+        assertThat(result.getContent().get(0).city()).isEqualTo("Jerez");
+
+        verify(trackRepository).findByCityIgnoreCase("Jerez", pageable);
+    }
+
+    @Test
+    void getAllTracks_filtersByCountryAndCity() {
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Track track = new Track(
+                "Italian GP",
+                "Mugello",
+                "Italy",
+                "Scarperia",
+                5.245,
+                15,
+                23,
+                null,
+                null,
+                null,
+                1974
+        );
+
+        Page<Track> page = new PageImpl<>(List.of(track));
+
+        when(trackRepository.findByCountryIgnoreCaseAndCityIgnoreCase(
+                "Italy",
+                "Scarperia",
+                pageable))
+                .thenReturn(page);
+
+        Page<TrackResponse> result =
+                trackService.getAllTracks("Italy", "Scarperia", pageable);
+
+        assertEquals(1, result.getTotalElements());
+        assertThat(result.getContent().get(0).circuitName()).isEqualTo("Mugello");
+
+        verify(trackRepository)
+                .findByCountryIgnoreCaseAndCityIgnoreCase(
+                        "Italy",
+                        "Scarperia",
+                        pageable);
     }
 
     @Test
