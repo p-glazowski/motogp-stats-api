@@ -55,9 +55,26 @@ public class TrackService {
     }
 
 
-    public Page<TrackResponse> getAllTracks(Pageable pageable) {
-        return trackRepository.findAll(pageable)
-                .map(this::toDto);
+    public Page<TrackResponse> getAllTracks(String country,
+                                            String city,
+                                            Pageable pageable) {
+
+        Page<Track> tracks;
+
+        if (country != null && city != null) {
+            tracks = trackRepository.findByCountryIgnoreCaseAndCityIgnoreCase(country, city, pageable);
+
+        } else if (country != null) {
+            tracks = trackRepository.findByCountryIgnoreCase(country, pageable);
+
+        } else if (city != null) {
+            tracks = trackRepository.findByCityIgnoreCase(city, pageable);
+
+        } else {
+            tracks = trackRepository.findAll(pageable);
+        }
+
+        return tracks.map(this::toDto);
     }
 
     public TrackResponse getTrackById(Long id) {

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +33,12 @@ public class TrackController {
             description = "Returns every circuit stored in the database"
     )
     @GetMapping
-    public Page<TrackResponse> getAllTracks(Pageable pageable) {
-        return trackService.getAllTracks(pageable);
+    public Page<TrackResponse> getTracks(
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String city,
+            @PageableDefault(size = 10, sort = "id") Pageable pageable
+    ) {
+        return trackService.getAllTracks(country, city, pageable);
     }
 
     @Operation(
