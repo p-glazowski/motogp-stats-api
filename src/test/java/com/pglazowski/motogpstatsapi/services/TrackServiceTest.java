@@ -10,6 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +33,7 @@ public class TrackServiceTest {
     @InjectMocks
     private TrackService trackService;
 
-    @Test
+/*    @Test
     public void getAllTracks_returnsMappedTrackResponses() {
         Track track = new Track(
                 "Grand Prix of Spain",
@@ -72,6 +76,58 @@ public class TrackServiceTest {
         assertEquals(0, result.size());
 
         verify(trackRepository).findAll();
+    }*/
+
+    @Test
+    void getAllTracks_returnsPagedTrackResponses() {
+        // given
+        Pageable pageable = PageRequest.of(0, 2);
+
+        Track track1 = new Track(
+                "Grand Prix of Spain",
+                "Circuito de Jerez – Ángel Nieto",
+                "Spain",
+                "Jerez de la Frontera",
+                4.423,
+                13,
+                25,
+                null,
+                null,
+                null,
+                1987
+        );
+
+        Track track2 = new Track(
+                "Grand Prix of Italy",
+                "Mugello",
+                "Italy",
+                "Scarperia",
+                5.245,
+                15,
+                23,
+                "1:45.187",
+                "Francesco Bagnaia",
+                2023,
+                1974
+        );
+
+        Page<Track> page = new PageImpl<>(
+                List.of(track1, track2),
+                pageable,
+                2
+        );
+
+        when(trackRepository.findAll(pageable)).thenReturn(page);
+
+        // when
+        Page<TrackResponse> result = trackService.getAllTracks(pageable);
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getContent().get(0).gpName()).isEqualTo("Grand Prix of Spain");
+        assertThat(result.getContent().get(1).gpName()).isEqualTo("Grand Prix of Italy");
+
+        verify(trackRepository).findAll(pageable);
     }
 
     @Test
