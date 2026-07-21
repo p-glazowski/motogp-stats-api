@@ -6,6 +6,8 @@ import com.pglazowski.motogpstatsapi.services.TrackService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,8 +32,8 @@ public class TrackController {
             description = "Returns every circuit stored in the database"
     )
     @GetMapping
-    public List<TrackResponse> getAllTracks() {
-        return trackService.getAllTracks();
+    public Page<TrackResponse> getAllTracks(Pageable pageable) {
+        return trackService.getAllTracks(pageable);
     }
 
     @Operation(

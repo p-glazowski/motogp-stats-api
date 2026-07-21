@@ -5,6 +5,8 @@ import com.pglazowski.motogpstatsapi.dto.TrackResponse;
 import com.pglazowski.motogpstatsapi.exceptions.NotFoundException;
 import com.pglazowski.motogpstatsapi.models.Track;
 import com.pglazowski.motogpstatsapi.repositories.TrackRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,8 +54,10 @@ public class TrackService {
         );
     }
 
-    public List<TrackResponse> getAllTracks() {
-        return trackRepository.findAll().stream().map(this::toDto).toList();
+
+    public Page<TrackResponse> getAllTracks(Pageable pageable) {
+        return trackRepository.findAll(pageable)
+                .map(this::toDto);
     }
 
     public TrackResponse getTrackById(Long id) {

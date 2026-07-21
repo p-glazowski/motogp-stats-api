@@ -37,11 +37,6 @@ public class TrackIntegrationTest {
     @Autowired
     private TrackRepository trackRepository;
 
-    @BeforeEach
-    void cleanDatabase() {
-        trackRepository.deleteAll();
-    }
-
     @Test
     void createTrack_createsTrackAndReturnsResponse() throws Exception {
 
@@ -106,7 +101,21 @@ public class TrackIntegrationTest {
     @Test
     void getAllTracks_returnsSavedTracks() throws Exception {
 
-        trackRepository.save(new Track(
+        Track italianTrack = trackRepository.save(new Track(
+                "Italian GP",
+                "Mugello",
+                "Italy",
+                "Mugello",
+                4.423,
+                13,
+                25,
+                null,
+                null,
+                null,
+                1987
+        ));
+
+        Track spanishTrack = trackRepository.save(new Track(
                 "Spanish GP",
                 "Jerez",
                 "Spain",
@@ -121,11 +130,19 @@ public class TrackIntegrationTest {
         ));
 
 
-        mockMvc.perform(get("/tracks"))
+        mockMvc.perform(get("/tracks")
+                        .param("page", "0")
+                        .param("size", "20")
+                        .param("sort", "id,asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].circuitName",
-                        is("Jerez")));
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].id").value(italianTrack.getId()))
+                .andExpect(jsonPath("$.content[1].id").value(spanishTrack.getId()))
+                .andExpect(jsonPath("$.content[0].gpName").value("Italian GP"))
+                .andExpect(jsonPath("$.content[1].gpName").value("Spanish GP"))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.size").value(20))
+                .andExpect(jsonPath("$.number").value(0));
     }
 
 

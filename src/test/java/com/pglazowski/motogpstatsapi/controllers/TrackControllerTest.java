@@ -7,6 +7,10 @@ import com.pglazowski.motogpstatsapi.services.TrackService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,7 +37,7 @@ public class TrackControllerTest {
     @MockitoBean
     private TrackService trackService;
 
-    @Test
+/*    @Test
     void getAllTracks_returnsListOfTracks() throws Exception {
         TrackResponse track1 = new TrackResponse(
                 1L, "Italian GP", "Mugello", "Italy", "Scarperia",
@@ -66,6 +70,47 @@ public class TrackControllerTest {
         mockMvc.perform(get("/tracks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
+    }*/
+
+    @Test
+    void getAllTracks_returnPagedTracks() throws Exception {
+        // given
+        TrackResponse track1 = new TrackResponse(
+                1L, "Italian GP", "Mugello", "Italy", "Scarperia",
+                5.245, 15, 23, "1:45.187", "Francesco Bagnaia",
+                2023, 1974
+        );
+
+        TrackResponse track2 = new TrackResponse(
+                2L, "Spanish GP", "Jerez", "Spain", "Jerez de la Frontera",
+                4.423, 13, 25, "1:36.170", "Marc Marquez",
+                2023, 1987
+        );
+
+        Page<TrackResponse> page = new PageImpl<>(
+                List.of(track1, track2),
+                PageRequest.of(0, 20),
+                2
+        );
+
+        when(trackService.getAllTracks(any(Pageable.class)))
+                .thenReturn(page);
+
+        // when & then
+        mockMvc.perform(get("/tracks")
+                        .param("page", "0")
+                        .param("size", "20"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content[0].id").value(1L))
+                .andExpect(jsonPath("$.content[1].id").value(2L))
+                .andExpect(jsonPath("$.content[0].gpName").value("Italian GP"))
+                .andExpect(jsonPath("$.content[1].gpName").value("Spanish GP"))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.size").value(20))
+                .andExpect(jsonPath("$.number").value(0));
+
+        verify(trackService).getAllTracks(any(Pageable.class));
     }
 
     @Test
