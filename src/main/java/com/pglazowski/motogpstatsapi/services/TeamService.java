@@ -4,6 +4,7 @@ import com.pglazowski.motogpstatsapi.dto.TeamRequest;
 import com.pglazowski.motogpstatsapi.dto.TeamResponse;
 import com.pglazowski.motogpstatsapi.dto.TrackRequest;
 import com.pglazowski.motogpstatsapi.dto.TrackResponse;
+import com.pglazowski.motogpstatsapi.exceptions.DuplicateResourceException;
 import com.pglazowski.motogpstatsapi.exceptions.NotFoundException;
 import com.pglazowski.motogpstatsapi.models.Team;
 import com.pglazowski.motogpstatsapi.models.Track;
@@ -11,6 +12,8 @@ import com.pglazowski.motogpstatsapi.repositories.TeamRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class TeamService {
@@ -73,5 +76,70 @@ public class TeamService {
                 .orElseThrow(() -> new NotFoundException("Team with id " + id + " not found"));
 
         return toDto(foundTeam);
+    }
+
+    public TeamResponse createTeam(TeamRequest request) {
+        if (teamRepository.existsByNameIgnoreCase(request.name())) {
+            throw new DuplicateResourceException("Team with name '" + request.name() + "' already exists");
+        }
+        Team team = toEntity(request);
+        Team savedTeam = teamRepository.save(team);
+        return toDto(savedTeam);
+    }
+
+    public TeamResponse updateTeam(Long id, TeamRequest request) {
+        Team existingTeam = teamRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Team with id " + id + " not found"));
+
+        if (!existingTeam.getName().equalsIgnoreCase(request.name()) &&
+                teamRepository.existsByNameIgnoreCase(request.name())) {
+            throw new DuplicateResourceException("Team with name '" + request.name() + "' already exists");
+        }
+
+        existingTeam.setName(request.name());
+        existingTeam.setManufacturer(request.manufacturer());
+        existingTeam.setCountry(request.country());
+        existingTeam.setTeamPrincipal(request.teamPrincipal());
+        existingTeam.setBaseLocation(request.baseLocation());
+        existingTeam.setFoundedYear(request.foundedYear());
+        existingTeam.setWebsite(request.website());
+
+        Team updatedTeam = teamRepository.save(existingTeam);
+        return toDto(updatedTeam);
+    }
+
+    public void deleteTeam(Long id) {
+        if (!teamRepository.existsById(id)) {
+            throw new NotFoundException("Team with id " + id + " not found");
+        }
+        teamRepository.deleteById(id);
+    }
+
+    public Page<TeamResponse> searchTeams(String query, Pageable pageable) {
+        return teamRepository.findByNameContainingIgnoreCase(query, pageable)
+                .map(this::toDto);
+    }
+
+    public TeamResponse getTeamByName(String name) {
+        Team team = teamRepository.findByNameIgnoreCase(name)
+                .orElseThrow(() -> new NotFoundException("Team with name '" + name + "' not found"));
+        return toDto(team);
+    }
+
+    public List<String> getAllCountries() {
+        return teamRepository.findAllDistinctCountries();
+    }
+
+    public List<String> getAllManufacturers() {
+        return teamRepository.findAllDistinctManufacturers();
+    }
+
+    public boolean teamExists(String name) {
+        return teamRepository.existsByNameIgnoreCase(name);
+    }
+
+    public Page<TeamResponse> getTeamsFoundedBetween(Integer startYear, Integer endYear, Pageable pageable) {
+        return teamRepository.findByFoundedYearBetween(startYear, endYear, pageable)
+                .map(this::toDto);
     }
 }
