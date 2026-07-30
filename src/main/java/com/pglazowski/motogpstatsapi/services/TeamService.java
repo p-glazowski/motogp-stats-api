@@ -1,9 +1,11 @@
 package com.pglazowski.motogpstatsapi.services;
 
+import com.pglazowski.motogpstatsapi.dto.RiderSummaryResponse;
 import com.pglazowski.motogpstatsapi.dto.TeamRequest;
 import com.pglazowski.motogpstatsapi.dto.TeamResponse;
 import com.pglazowski.motogpstatsapi.exceptions.DuplicateResourceException;
 import com.pglazowski.motogpstatsapi.exceptions.NotFoundException;
+import com.pglazowski.motogpstatsapi.models.Rider;
 import com.pglazowski.motogpstatsapi.models.Team;
 import com.pglazowski.motogpstatsapi.repositories.TeamRepository;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,10 @@ public class TeamService {
     }
 
     public TeamResponse toDto(Team team) {
+        List<RiderSummaryResponse> riders = team.getRiders() != null ?
+                team.getRiders().stream().map(this::toRiderSummary).toList() :
+                List.of();
+
         return new TeamResponse(
                 team.getId(),
                 team.getName(),
@@ -30,7 +36,8 @@ public class TeamService {
                 team.getTeamPrincipal(),
                 team.getBaseLocation(),
                 team.getFoundedYear(),
-                team.getWebsite()
+                team.getWebsite(),
+                riders
         );
     }
 
@@ -43,6 +50,15 @@ public class TeamService {
                 request.baseLocation(),
                 request.foundedYear(),
                 request.website()
+        );
+    }
+
+    public RiderSummaryResponse toRiderSummary(Rider rider) {
+        return new RiderSummaryResponse(
+                rider.getId(),
+                rider.getFullName(),
+                rider.getRaceNumber(),
+                rider.getNationality()
         );
     }
 
