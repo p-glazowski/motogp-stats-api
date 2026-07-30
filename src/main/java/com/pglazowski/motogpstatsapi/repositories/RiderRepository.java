@@ -33,6 +33,14 @@ public interface RiderRepository extends JpaRepository<Rider, Long> {
     @Query("SELECT DISTINCT r.nationality FROM Rider r ORDER BY r.nationality")
     List<String> findAllDistinctNationalities();
 
-    // Find riders by age range
-    Page<Rider> findByAgeBetween(Integer minAge, Integer maxAge, Pageable pageable);
+    Page<Rider> findByNationalityIgnoreCaseAndTeamId(String nationality, Long teamId, Pageable pageable);
+
+    Page<Rider> findByNationalityIgnoreCaseAndFullNameContainingIgnoreCase(
+            String nationality, String fullName, Pageable pageable);
+
+    Page<Rider> findByTeamIdAndFullNameContainingIgnoreCase(Long teamId, String fullName, Pageable pageable);
+
+    Page<Rider> findByNationalityIgnoreCaseAndTeamIdAndFullNameContainingIgnoreCase(
+            String nationality, Long teamId, String fullName, Pageable pageable);
+
 }

@@ -78,11 +78,29 @@ public class RiderService {
     public Page<RiderResponse> getRiders(String nationality, Long teamId, String search, Pageable pageable) {
         Page<Rider> riders;
 
-        if (nationality != null && !nationality.isEmpty()) {
+        boolean hasNationality = nationality != null && !nationality.isEmpty();
+        boolean hasTeamId = teamId != null;
+        boolean hasSearch = search != null && !search.isEmpty();
+
+        if (hasNationality && hasTeamId && hasSearch) {
+            // All three filters combined
+            riders = riderRepository.findByNationalityIgnoreCaseAndTeamIdAndFullNameContainingIgnoreCase(
+                    nationality, teamId, search, pageable);
+        } else if (hasNationality && hasTeamId) {
+            // Nationality + Team
+            riders = riderRepository.findByNationalityIgnoreCaseAndTeamId(nationality, teamId, pageable);
+        } else if (hasNationality && hasSearch) {
+            // Nationality + Search
+            riders = riderRepository.findByNationalityIgnoreCaseAndFullNameContainingIgnoreCase(
+                    nationality, search, pageable);
+        } else if (hasTeamId && hasSearch) {
+            // Team + Search
+            riders = riderRepository.findByTeamIdAndFullNameContainingIgnoreCase(teamId, search, pageable);
+        } else if (hasNationality) {
             riders = riderRepository.findByNationalityIgnoreCase(nationality, pageable);
-        } else if (teamId != null) {
+        } else if (hasTeamId) {
             riders = riderRepository.findByTeamId(teamId, pageable);
-        } else if (search != null && !search.isEmpty()) {
+        } else if (hasSearch) {
             riders = riderRepository.findByFullNameContainingIgnoreCase(search, pageable);
         } else {
             riders = riderRepository.findAll(pageable);
