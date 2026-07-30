@@ -1,6 +1,9 @@
 package com.pglazowski.motogpstatsapi.dto;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.List;
 
 @Schema(description = "Response payload containing MotoGP team information.")
 public record TeamResponse(
@@ -26,5 +29,30 @@ public record TeamResponse(
         Integer foundedYear,
 
         @Schema(description = "Official team website", example = "https://www.ducati.com/racing")
-        String website
+        String website,
+
+        @ArraySchema(
+                schema = @Schema(implementation = RiderSummaryResponse.class),
+                arraySchema = @Schema(
+                        description = "List of riders currently in the team",
+                        example = """
+                                [
+                                    {
+                                        "id": 1,
+                                        "fullName": "Francesco Bagnaia",
+                                        "raceNumber": 63,
+                                        "nationality": "Italy"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "fullName": "Marc Marquez",
+                                        "raceNumber": 93,
+                                        "nationality": "Spain"
+                                    }
+                                ]
+                                """
+                )
+        )
+        List<RiderSummaryResponse> riders
+
 ) {}

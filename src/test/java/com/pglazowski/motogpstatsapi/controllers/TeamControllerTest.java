@@ -1,5 +1,6 @@
 package com.pglazowski.motogpstatsapi.controllers;
 
+import com.pglazowski.motogpstatsapi.dto.RiderSummaryResponse;
 import com.pglazowski.motogpstatsapi.dto.TeamRequest;
 import com.pglazowski.motogpstatsapi.dto.TeamResponse;
 import com.pglazowski.motogpstatsapi.services.TeamService;
@@ -37,6 +38,11 @@ public class TeamControllerTest {
     @BeforeEach
     void setUp() {
 
+        List<RiderSummaryResponse> riders = List.of(
+                new RiderSummaryResponse(1L, "Francesco Bagnaia", 63, "Italy"),
+                new RiderSummaryResponse(2L, "Marc Marquez", 93, "Spain")
+        );
+
         teamResponse = new TeamResponse(
                 teamId,
                 "Ducati Lenovo Team",
@@ -45,7 +51,8 @@ public class TeamControllerTest {
                 "Luigi Dall'Igna",
                 "Bologna, Italy",
                 1999,
-                "https://www.ducati.com/racing"
+                "https://www.ducati.com/racing",
+                riders
         );
 
         teamRequest = new TeamRequest(
@@ -286,7 +293,8 @@ public class TeamControllerTest {
                 "New Principal",
                 "New Location",
                 2000,
-                "https://updated.com"
+                "https://updated.com",
+                List.of()
         );
         when(teamService.updateTeam(teamId, updatedRequest)).thenReturn(updatedResponse);
 

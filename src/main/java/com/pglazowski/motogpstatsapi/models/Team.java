@@ -2,6 +2,9 @@ package com.pglazowski.motogpstatsapi.models;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "teams")
 public class Team {
@@ -29,6 +32,9 @@ public class Team {
     private Integer foundedYear;
 
     private String website;
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Rider> riders = new ArrayList<>();
 
     public Team() {
     }
@@ -103,5 +109,13 @@ public class Team {
 
     public void setWebsite(String website) {
         this.website = website;
+    }
+
+    public List<Rider> getRiders() {
+        return riders;
+    }
+
+    public void setRiders(List<Rider> riders) {
+        this.riders = riders;
     }
 }
